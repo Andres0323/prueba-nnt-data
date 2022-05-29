@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Card, Col, Container, Nav, Navbar, Row,
+  Card, Col, Nav, Row, InputGroup, FormControl, Form,
 } from 'react-bootstrap';
-import {
-  Moon as MoonIcon,
-} from 'react-feather';
+import { Search as SearchIcon } from 'react-feather';
 import endPoints from 'endPoints/endPoints';
 import { Loader } from 'components';
-import { masterMessages } from 'constantes';
+// import { masterMessages } from 'constantes';
 
 class CountryViewList extends Component {
   constructor(props) {
@@ -57,61 +55,70 @@ class CountryViewList extends Component {
 
   render() {
     const { loading, countryArray } = this.state; // Cargo valores para actualizar vista
-    const { title } = masterMessages.app; // Carga los mensajes a mostrar
+    // const { title } = masterMessages.app; // Carga los mensajes a mostrar
 
     return loading ? <Loader /> : (
       <>
-        {/* Header */}
-        <Navbar expand="lg" variant="light" bg="light">
-          <Container>
-            <Navbar.Brand href="/">{ title }</Navbar.Brand>
-            <Nav>
-              <MoonIcon size={22} style={{ marginTop: 4 }} />
-              <Button size="sm" style={{ fontSize: 11, margin: 2 }}>
-                Light / Dark
-              </Button>
-            </Nav>
-          </Container>
-        </Navbar>
-
         {/* Contenido */}
         <div style={{ marginTop: 20, padding: 5, marginLeft: 10 }}>
           {/* Botones de buscar y filtro */}
 
           <Row>
-            {countryArray.map((item, index) => (
-              <>
-                <Col xs={12} md={3} lg={3} key={`a-${index}`} style={{ marginTop: 20 }}>
-                  <Card style={{ width: '17rem' }}>
-                    <Nav.Link href={endPoints.app.detail}>
-                      <Card.Img variant="top" src={item.flags.png} style={{ height: '10rem' }} />
-                    </Nav.Link>
-                    <h1 style={{ marginLeft: 15 }}>{item.name}</h1>
-                    <Card.Body style={{ height: '7rem' }}>
-                      <span>
-                        Population:
-                        {' '}
-                        {item.population.toLocaleString('es-CO')}
-                      </span>
-                      <br />
-                      <span>
-                        Región:
-                        {' '}
-                        {item.region}
-                      </span>
-                      <br />
-                      <span>
-                        Capital:
-                        {' '}
-                        {item.capital}
-                      </span>
-                      <br />
-                    </Card.Body>
-                  </Card>
+            <>
+              <Row>
+                <Col xs={12} md={3}>
+                  <InputGroup className="mb-3">
+                    <InputGroup.Text>
+                      <SearchIcon size={20} />
+                    </InputGroup.Text>
+                    <FormControl placeholder="Buscar" />
+                  </InputGroup>
                 </Col>
-                <br />
-              </>
-            ))}
+                <Col xs={7} />
+                <Col xs={12} md={2}>
+                  <Form.Select>
+                    <option>Filtro por área</option>
+                    <option value="1">Afríca</option>
+                    <option value="2">Ameríca</option>
+                    <option value="3">Europa</option>
+                    <option value="4">Óceania</option>
+                  </Form.Select>
+                </Col>
+              </Row>
+              {countryArray.map((item, index) => (
+                <>
+                  <Col xs={12} md={3} lg={3} key={`a-${index}`} style={{ marginTop: 20 }}>
+                    <Card style={{ width: '17rem' }}>
+                      <Nav.Link href={endPoints.app.detail}>
+                        <Card.Img variant="top" src={item.flags.png} style={{ height: '10rem' }} />
+                      </Nav.Link>
+                      <h1 style={{ marginLeft: 15 }}>{item.name}</h1>
+                      <Card.Body style={{ height: '7rem' }}>
+                        <span>
+                          Population:
+                          {' '}
+                          {item.population.toLocaleString('es-CO')}
+                        </span>
+                        <br />
+                        <span>
+                          Región:
+                          {' '}
+                          {item.region}
+                        </span>
+                        <br />
+                        <span>
+                          Capital:
+                          {' '}
+                          {item.capital}
+                        </span>
+                        <br />
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <br />
+                </>
+              ))}
+            </>
           </Row>
         </div>
       </>

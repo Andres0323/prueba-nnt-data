@@ -1,6 +1,5 @@
 import React from 'react';
 import { Spinner, Row, Col } from 'react-bootstrap';
-import AppStyles from '../App.css';
 
 const LoadingScreen = () => (
   <Row>
