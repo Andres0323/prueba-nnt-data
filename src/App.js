@@ -1,17 +1,19 @@
 import React from 'react';
 import { createBrowserHistory } from 'history';
-import './App.css';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import routes, { renderRoutes } from 'routes';
+import AppStyles from './App.css';
 
 // variables globales
 const history = createBrowserHistory();
 
 function App() {
   return (
-    <BrowserRouter history={history}>
-      {renderRoutes(routes)}
-    </BrowserRouter>
+    <Router history={history}>
+      <div className={AppStyles.App}>
+        {renderRoutes(routes)}
+      </div>
+    </Router>
   );
 }
 

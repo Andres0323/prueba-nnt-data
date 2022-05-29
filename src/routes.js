@@ -49,6 +49,11 @@ const routes = [
         component: lazy(() => import('views/countryView/CountryViewList')),
       },
       {
+        exact: true,
+        path: '/app/country-detail',
+        component: lazy(() => import('views/countryView/CountryDetail')),
+      },
+      {
         component: () => <Redirect to="/app/country" />,
       },
     ],
