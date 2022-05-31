@@ -10,9 +10,32 @@ import {
 import endPoints from 'endPoints/endPoints';
 import { Loader } from 'components';
 import { upperCaseString } from 'utils/functions';
-// import { masterMessages } from 'constantes';
+import { masterMessages } from 'constantes';
 
 const KEY_ENTER = 13; // Variable usada en comparación
+
+const optionsArray = [ // Array de opciones en filtro
+  {
+    value: 'africa',
+    label: 'Afríca',
+  },
+  {
+    value: 'america',
+    label: 'Ameríca',
+  },
+  {
+    value: 'europe',
+    label: 'Europa',
+  },
+  {
+    value: 'oceania',
+    label: 'Óceania',
+  },
+  {
+    value: 'all',
+    label: 'Todos',
+  },
+];
 
 class CountryViewList extends Component {
   constructor(props) {
@@ -32,6 +55,11 @@ class CountryViewList extends Component {
     this.init();
   }
 
+  /**
+   * @name init
+   * @desc Metodo que inicializa variables y metodos iniciales
+   * @returns {Promise<void>}
+   */
   init = async () => {
     // Hago consulta al api para cargar data a mostrar
     try {
@@ -127,7 +155,7 @@ class CountryViewList extends Component {
 
   render() {
     const { loading, countryArray } = this.state; // Cargo valores para actualizar vista
-    // const { title } = masterMessages.app; // Carga los mensajes a mostrar
+    const { notFound } = masterMessages.app; // Carga los mensajes a mostrar
 
     return loading ? <Loader /> : (
       <>
@@ -152,12 +180,9 @@ class CountryViewList extends Component {
                 <Col xs={7} />
                 <Col xs={12} md={2}>
                   <Form.Select onChange={(event) => this.areaChange(event)}>
-                    <option disabled>Filtro por área</option>
-                    <option value="africa">Afríca</option>
-                    <option value="america">Ameríca</option>
-                    <option value="europe">Europa</option>
-                    <option value="oceania">Óceania</option>
-                    <option value="all">Todos</option>
+                    {optionsArray.map((item) => (
+                      <option value={item.value}>{item.label}</option>
+                    ))}
                   </Form.Select>
                 </Col>
               </Row>
@@ -165,7 +190,7 @@ class CountryViewList extends Component {
                 <>
                   <Col xs={12} md={3} lg={3} key={`a-${index.toString()}`} style={{ marginTop: 20 }}>
                     <Card style={{ width: '17rem' }}>
-                      <Nav.Link href={endPoints.app.detail}>
+                      <Nav.Link href={`${endPoints.app.detail}/${item.name}`}>
                         <Card.Img variant="top" src={item.flags.png || ''} style={{ height: '10rem' }} />
                       </Nav.Link>
                       <h1 style={{ marginLeft: 15 }}>{item.name || ''}</h1>
@@ -197,7 +222,7 @@ class CountryViewList extends Component {
 
               {Boolean(countryArray) && (
                 <div style={{ textAlign: 'center' }}>
-                  <h1>No se encontraron resultados.</h1>
+                  <h1>{notFound}</h1>
                 </div>
               )}
             </>
@@ -209,6 +234,7 @@ class CountryViewList extends Component {
 }
 
 CountryViewList.propTypes = {
+  // Manejo de rutas en caso de requerirse
   history: PropTypes.shape({
     push: PropTypes.func,
     replace: PropTypes.func,

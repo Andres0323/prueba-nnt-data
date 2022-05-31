@@ -50,7 +50,7 @@ const routes = [
       },
       {
         exact: true,
-        path: '/app/country-detail',
+        path: '/app/country-detail/:pais',
         component: lazy(() => import('views/countryView/CountryDetail')),
       },
       {
