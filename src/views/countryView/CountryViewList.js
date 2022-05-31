@@ -3,10 +3,16 @@ import PropTypes from 'prop-types';
 import {
   Card, Col, Nav, Row, InputGroup, FormControl, Form,
 } from 'react-bootstrap';
-import { Search as SearchIcon } from 'react-feather';
+import {
+  Search as SearchIcon,
+  RefreshCcw as RefreshCcwIcon,
+} from 'react-feather';
 import endPoints from 'endPoints/endPoints';
 import { Loader } from 'components';
+import { upperCaseString } from 'utils/functions';
 // import { masterMessages } from 'constantes';
+
+const KEY_ENTER = 13; // Variable usada en comparación
 
 class CountryViewList extends Component {
   constructor(props) {
@@ -15,6 +21,7 @@ class CountryViewList extends Component {
       countryArray: [],
       loading: true,
     };
+    this.countryClon = [];
   }
 
   /**
@@ -31,6 +38,7 @@ class CountryViewList extends Component {
       const form = await this.loadFields();
 
       // Cargo las variables
+      this.countryClon = form;
       this.setState({
         countryArray: form,
         loading: false,
@@ -53,6 +61,70 @@ class CountryViewList extends Component {
     return data;
   };
 
+  /**
+   * @name loadFieldsByFilter
+   * @desc Metodo que realiza llamada al api para cargar datos a listar segun la region
+   * @returns
+   */
+  loadFieldsByFilter = async (region) => {
+    const url = `${endPoints.appHttps.base}/continent/${region}`;
+    const data = await fetch(url)
+      .then((res) => res.json()); // se formatea respuesta
+
+    const resp = (data.message !== 'Page Not Found') ? data : [];
+
+    return resp;
+  };
+
+  /**
+   * @name areaChange
+   * @desc Metodo que detecta el cambio del filtro select para llamar al api
+   * @returns
+   */
+  areaChange = async (event) => {
+    this.setState({ loading: true });
+    const { target: { value } } = event;
+    const metod = (value === 'all') ? this.loadFields() : this.loadFieldsByFilter(value);
+    try {
+      const data = await metod;
+
+      // Cargo las variables nuevamente
+      this.setState({
+        countryArray: data || [],
+        loading: false,
+      });
+    } catch (e) {
+      throw Error(e);
+    }
+  };
+
+  /**
+   * @name getItemsOptions
+   * @desc Busca objeto si es identico al parametro nombre y lo retorna
+   */
+  getItemsOptions = (data, value) => data.find((item) => item.name === value);
+
+  /**
+   * @name filterData
+   * @desc Metodo para buscar datos segun input de busqueda
+   */
+  filterData = async (filters) => {
+    const { keyCode, target: { value } } = filters;
+    // Formateo la primera letra del string para traerla mayuscula
+    const field = await upperCaseString(value);
+
+    if (keyCode === KEY_ENTER) {
+      this.setState({ loading: true });
+      setTimeout(async () => {
+        const dataForm = await this.getItemsOptions(this.countryClon, field);
+        this.setState({
+          countryArray: [dataForm] || this.countryClon,
+          loading: false,
+        });
+      }, 2000);
+    }
+  };
+
   render() {
     const { loading, countryArray } = this.state; // Cargo valores para actualizar vista
     // const { title } = masterMessages.app; // Carga los mensajes a mostrar
@@ -71,45 +143,49 @@ class CountryViewList extends Component {
                     <InputGroup.Text>
                       <SearchIcon size={20} />
                     </InputGroup.Text>
-                    <FormControl placeholder="Buscar" />
+                    <FormControl placeholder="Buscar" onKeyDown={(event) => this.filterData(event)} />
+                    <InputGroup.Text>
+                      <RefreshCcwIcon size={20} onClick={() => this.init()} />
+                    </InputGroup.Text>
                   </InputGroup>
                 </Col>
                 <Col xs={7} />
                 <Col xs={12} md={2}>
-                  <Form.Select>
-                    <option>Filtro por área</option>
-                    <option value="1">Afríca</option>
-                    <option value="2">Ameríca</option>
-                    <option value="3">Europa</option>
-                    <option value="4">Óceania</option>
+                  <Form.Select onChange={(event) => this.areaChange(event)}>
+                    <option disabled>Filtro por área</option>
+                    <option value="africa">Afríca</option>
+                    <option value="america">Ameríca</option>
+                    <option value="europe">Europa</option>
+                    <option value="oceania">Óceania</option>
+                    <option value="all">Todos</option>
                   </Form.Select>
                 </Col>
               </Row>
               {countryArray.map((item, index) => (
                 <>
-                  <Col xs={12} md={3} lg={3} key={`a-${index}`} style={{ marginTop: 20 }}>
+                  <Col xs={12} md={3} lg={3} key={`a-${index.toString()}`} style={{ marginTop: 20 }}>
                     <Card style={{ width: '17rem' }}>
                       <Nav.Link href={endPoints.app.detail}>
-                        <Card.Img variant="top" src={item.flags.png} style={{ height: '10rem' }} />
+                        <Card.Img variant="top" src={item.flags.png || ''} style={{ height: '10rem' }} />
                       </Nav.Link>
-                      <h1 style={{ marginLeft: 15 }}>{item.name}</h1>
+                      <h1 style={{ marginLeft: 15 }}>{item.name || ''}</h1>
                       <Card.Body style={{ height: '7rem' }}>
                         <span>
                           Population:
                           {' '}
-                          {item.population.toLocaleString('es-CO')}
+                          {item.population.toLocaleString('es-CO') || ''}
                         </span>
                         <br />
                         <span>
                           Región:
                           {' '}
-                          {item.region}
+                          {item.region || ''}
                         </span>
                         <br />
                         <span>
                           Capital:
                           {' '}
-                          {item.capital}
+                          {item.capital || ''}
                         </span>
                         <br />
                       </Card.Body>
@@ -118,6 +194,12 @@ class CountryViewList extends Component {
                   <br />
                 </>
               ))}
+
+              {Boolean(countryArray) && (
+                <div style={{ textAlign: 'center' }}>
+                  <h1>No se encontraron resultados.</h1>
+                </div>
+              )}
             </>
           </Row>
         </div>
