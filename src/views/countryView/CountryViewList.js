@@ -220,7 +220,7 @@ class CountryViewList extends Component {
                 </>
               ))}
 
-              {Boolean(countryArray) && (
+              {Boolean(countryArray.length === 0) && (
                 <div style={{ textAlign: 'center' }}>
                   <h1>{notFound}</h1>
                 </div>
